@@ -1,8 +1,8 @@
 {
   "name": "ai-commit-message",
-  "displayName": "Ai Commit Message",
+  "displayName": "Ai Commit Message - Openrouter",
   "description": "VS Code extension which helps to generate AI commit messages using ChatGPT",
-  "version": "1.1.5",
+  "version": "1.0.0",
   "homepage": "https://github.com/ComBba/AI_CommitMessage#readme",
   "bugs": "https://github.com/ComBba/AI_CommitMessage/issues",
   "repository": {
@@ -85,25 +85,6 @@
         },
         "aicommitmessage.openAI.gptVersion": {
           "type": "string",
-          "enum": [
-            "gpt-4o",
-            "gpt-4o-2024-05-13",
-            "gpt-4-turbo",
-            "gpt-4-turbo-2024-04-09",
-            "gpt-4-turbo-preview",
-            "gpt-4-0125-preview",
-            "gpt-4-1106-preview",
-            "gpt-3.5-turbo-0125",
-            "gpt-3.5-turbo",
-            "gpt-3.5-turbo-1106",
-            "llama-3-sonar-small-32k-chat",
-            "llama-3-sonar-small-32k-online",
-            "llama-3-sonar-large-32k-chat",
-            "llama-3-sonar-large-32k-online",
-            "llama-3-8b-instruct",
-            "llama-3-70b-instruct",
-            "mixtral-8x7b-instruct"
-          ],
           "default": "gpt-4o",
           "description": "Version of GPT used by OpenAI or perplexity.ai"
         },

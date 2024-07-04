@@ -1,20 +1,26 @@
-import * as vscode from "vscode";
 import { randomUUID } from "crypto";
 import { tmpdir } from "os";
 import * as path from "path";
+import * as vscode from "vscode";
 
-import { getConfiguration } from "@utils/configuration";
-import { GitExtension } from "@aicommitmessage/scm/types";
-import { GitCommitMessageWriter, VscodeGitDiffProvider } from "@aicommitmessage/scm";
-import { GenerateCompletionFlow } from "@flows";
 import { ChatgptMsgGenerator } from "@aicommitmessage/commit-msg-gen";
-import { runTaskWithTimeout } from "@utils/timer";
+import {
+  GitCommitMessageWriter,
+  VscodeGitDiffProvider,
+} from "@aicommitmessage/scm";
+import { GitExtension } from "@aicommitmessage/scm/types";
+import { GenerateCompletionFlow } from "@flows";
+import { getConfiguration } from "@utils/configuration";
 import { logToOutputChannel } from "@utils/output";
 import { isValidApiKey } from "@utils/text";
+import { runTaskWithTimeout } from "@utils/timer";
 
 async function openTempFileWithMessage(message: string) {
   const uid = randomUUID();
-  const tempMessageFile = path.join(tmpdir(), `vscode-aicommitmessage-${uid}.txt`);
+  const tempMessageFile = path.join(
+    tmpdir(),
+    `vscode-aicommitmessage-${uid}.txt`
+  );
 
   logToOutputChannel(`Opening temp file: ${tempMessageFile}`);
 
@@ -105,7 +111,7 @@ export async function generateAiCommitCommand() {
     const generateCompletionFlow = new GenerateCompletionFlow(
       messageGenerator,
       diffProvider,
-      commitMessageWriter,
+      commitMessageWriter
     );
 
     const delimeter = configuration.appearance.delimeter;

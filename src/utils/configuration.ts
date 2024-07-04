@@ -1,6 +1,6 @@
 // located at : src/utils/configuration.ts
-import { z } from "zod";
 import * as vscode from "vscode";
+import { z } from "zod";
 
 import { DeepKey } from "./types";
 
@@ -14,7 +14,7 @@ const gptVersionsOpenAI = z.enum([
   "gpt-4-1106-preview",
   "gpt-3.5-turbo-0125",
   "gpt-3.5-turbo",
-  "gpt-3.5-turbo-1106"
+  "gpt-3.5-turbo-1106",
 ]);
 
 const gptVersionsPerplexity = z.enum([
@@ -24,7 +24,7 @@ const gptVersionsPerplexity = z.enum([
   "llama-3-sonar-large-32k-online",
   "llama-3-8b-instruct",
   "llama-3-70b-instruct",
-  "mixtral-8x7b-instruct"
+  "mixtral-8x7b-instruct",
 ]);
 
 const configurationSchema = z.object({
@@ -45,45 +45,38 @@ const configurationSchema = z.object({
   }),
   openAI: z.object({
     apiKey: z.string().optional(),
-    customEndpoint: z.union([
-      z.literal("openai"),
-      z.literal("perplexity"),
-      z.string().regex(/^http/)
-    ])
+    customEndpoint: z
+      .union([
+        z.literal("openai"),
+        z.literal("perplexity"),
+        z.string().regex(/^http/),
+      ])
       .default("openai")
       .catch("openai")
       .optional(),
-    gptVersion: z.string()
-      .refine((version: string) => {
-        const customEndpoint: string | undefined = vscode.workspace
-          .getConfiguration("aicommitmessage")
-          .get("openAI.customEndpoint"); // 소문자로 변환하여 대소문자 무시
-        const validVersions = customEndpoint?.toLowerCase() === "perplexity" ?
-          gptVersionsPerplexity : gptVersionsOpenAI;
-        return validVersions.safeParse(version).success;
-      }, {
-        message: "Invalid GPT version for the specified endpoint"
-      })
-      .default("gpt-4o")
-      .catch("gpt-4o"),
+    gptVersion: z
+      .string()
+      .default("google/gemini-pro-1.5")
+      .catch("google/gemini-pro-1.5"),
     temperature: z.number().optional(),
     maxTokens: z.number().optional(),
-    language: z.enum([
-      "English",
-      "Korean",
-      "Japanese",
-      "Chinese",
-      "Spanish",
-      "Arabic",
-      "Portuguese",
-      "Russian",
-      "French",
-      "German",
-      "Italian"
-    ])
-    .default("English")
-    .catch("English")
-    .optional(),
+    language: z
+      .enum([
+        "English",
+        "Korean",
+        "Japanese",
+        "Chinese",
+        "Spanish",
+        "Arabic",
+        "Portuguese",
+        "Russian",
+        "French",
+        "German",
+        "Italian",
+      ])
+      .default("English")
+      .catch("English")
+      .optional(),
   }),
 });
 

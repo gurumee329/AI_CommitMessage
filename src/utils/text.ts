@@ -12,7 +12,7 @@ export function trimNewLines(str: string, delimeter?: string) {
 
   if (delimeter) {
     console.log("delimeter", delimeter);
-    formattedStrings = formattedStrings.map((str) => `${delimeter} ${str}`);
+    formattedStrings = formattedStrings.map((str) => (str ? `${delimeter} ${str}` : str));
   }
 
   return formattedStrings.join("\n");

@@ -5,64 +5,77 @@
  */
 import OpenAI from "openai";
 
-import { trimNewLines } from "@utils/text";
 import { Configuration as AppConfiguration } from "@utils/configuration";
+import { trimNewLines } from "@utils/text";
 
-import { MsgGenerator } from "./msg-generator";
-import { ChatCompletionMessageParam } from "openai/resources";
 import { logToOutputChannel } from "@utils/output";
+import { ChatCompletionMessageParam } from "openai/resources";
+import { MsgGenerator } from "./msg-generator";
 
-function createInitMessagesPrompt(language: string): ChatCompletionMessageParam[] {
+function createInitMessagesPrompt(
+  language: string,
+  delimeter: string = '* '
+): ChatCompletionMessageParam[] {
   return [
     {
-      role: 'system',
+      role: "system",
       content: `You are to act as the author of a commit message in git. Your task is to generate commit messages according to Conventional Commits 1.0.0 rules. I'll send you the outputs of the 'git diff' command, and you convert it into the one commit message. Do not prefix the commit with anything and use the present tense. You should never add a description to a commit, only commit message.`,
     },
     {
-      role: 'user',
-      content: `The Conventional Commits specification is a lightweight convention on top of commit messages.
-      It provides an easy set of rules for creating an explicit commit history; 
-      which makes it easier to write automated tools on top of. 
-      This convention dovetails with SemVer, 
-      by describing the features, fixes, and breaking changes made in commit messages.
-      The commit message must consist of multiple files as one message, as follows.
-      <type>[optional scope]: <description>
-      [optional body]`,
-    },
-    {
-      role: 'assistant',
-      content: `feat: allow provided config object to extend other configs
-      BREAKING CHANGE: 'extends' key in config file is now used for extending other config files`,
+      role: "user",
+      content: `
+Based on the following information, generate a Git commit message written in Korean, must be in Korean:
+
+- Changes made:
+  - Modified files: [list of modified files]
+  - Added files: [list of added files]
+  - Deleted files: [list of deleted files]
+- Main purpose and reason for the changes:
+  - [Explanation of the purpose and reason for the changes]
+
+The generated message should follow these guidelines:
+1. **Title:**
+   - Should be 50 characters or less.
+   - Use imperative mood (e.g., "Fix bug" instead of "Fixed bug").
+   - Capitalize the first letter.
+   - Do not end with a period.
+2. **Description (if necessary):**
+   - Explain what and why the changes were made.
+   - Each line should be 72 characters or less.
+   - List important changes if needed.
+
+**Example:**
+Title: Improve user authentication
+
+Body:
+This commit enhances the user authentication process by integrating JWT for token-based authentication. Additionally, it refines error messages to be more user-friendly in case of login failures.
+
+Key changes:
+${delimeter} Added JWT for token-based authentication
+${delimeter} Improved error messages for login failures
+
+Now, please generate a commit message based on the provided information.
+`,
     },
   ];
-};
+}
 
 function generateCommitMessageChatCompletionPrompt(
   diff: string,
-  language: string
+  language: string,
+  delimeter: string = '* '
 ): ChatCompletionMessageParam[] {
-  const chatContextAsCompletionRequest = createInitMessagesPrompt(language);
+  const chatContextAsCompletionRequest = createInitMessagesPrompt(language,delimeter);
 
   chatContextAsCompletionRequest.push({
-    role: 'user',
+    role: "user",
     content: diff,
   });
-
-  if (language !== 'English') {
-    chatContextAsCompletionRequest.push({
-      role: 'assistant',
-      content: `Please request the language you would like to use when responding.`,
-    });
-    chatContextAsCompletionRequest.push({
-      role: 'user',
-      content: `Translate to ${language}.`
-    });
-  }
 
   return chatContextAsCompletionRequest;
 }
 
-const defaultModel = "gpt-4o";
+const defaultModel = "google/gemini-pro-1.5";
 const defaultTemperature = 0.8;
 const defaultMaxTokens = 196;
 
@@ -85,7 +98,7 @@ export class ChatgptMsgGenerator implements MsgGenerator {
 
     this.openAI = new OpenAI({
       baseURL: baseURL,
-      apiKey: config.apiKey
+      apiKey: config.apiKey,
     });
 
     this.config = config;
@@ -93,7 +106,7 @@ export class ChatgptMsgGenerator implements MsgGenerator {
 
   async generate(diff: string, delimeter?: string) {
     const language = this.config?.language || "English";
-    const messages = generateCommitMessageChatCompletionPrompt(diff, language);
+    const messages = generateCommitMessageChatCompletionPrompt(diff, language,delimeter);
     const data = await this.openAI.chat.completions.create({
       model: this.config?.gptVersion || defaultModel,
       messages: messages,
@@ -108,15 +121,23 @@ export class ChatgptMsgGenerator implements MsgGenerator {
     logToOutputChannel("[customEndpoint] ", this.config?.customEndpoint);
     logToOutputChannel("[model]", this.config?.gptVersion);
     logToOutputChannel("[lang]", this.config?.language);
-    logToOutputChannel("[Data_completion_tokens]", data.usage?.completion_tokens.toFixed(0));
-    logToOutputChannel("[Data_prompt_tokens]", data.usage?.prompt_tokens.toFixed(0));
-    logToOutputChannel("[Data_total_tokens]", data.usage?.total_tokens.toFixed(0));
+    logToOutputChannel(
+      "[Data_completion_tokens]",
+      data.usage?.completion_tokens.toFixed(0)
+    );
+    logToOutputChannel(
+      "[Data_prompt_tokens]",
+      data.usage?.prompt_tokens.toFixed(0)
+    );
+    logToOutputChannel(
+      "[Data_total_tokens]",
+      data.usage?.total_tokens.toFixed(0)
+    );
 
     if (!commitMessage) {
       throw new Error("No commit message were generated. Try again.");
     }
 
-    const alignedCommitMessage = trimNewLines(commitMessage, delimeter);
-    return alignedCommitMessage;
+    return commitMessage;
   }
 }
