@@ -1,19 +1,17 @@
 {
-  "name": "ai-commit-message",
-  "displayName": "Ai Commit Message - Openrouter",
-  "description": "VS Code extension which helps to generate AI commit messages using ChatGPT",
+  "name": "llm-auto-commit",
+  "displayName": "llm-auto-commit",
+  "description": "llm-auto-commit",
   "version": "1.0.0",
-  "homepage": "https://github.com/ComBba/AI_CommitMessage#readme",
-  "bugs": "https://github.com/ComBba/AI_CommitMessage/issues",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ComBba/AI_CommitMessage"
+    "url": "https://github.com/gurumee329/AI_CommitMessage"
   },
-  "license": "MIT",
   "engines": {
     "vscode": "^1.76.0"
   },
-  "publisher": "2weeksco",
+  "publisher": "freko328",
   "categories": [
     "Other",
     "SCM Providers"
@@ -26,7 +24,6 @@
     "git",
     "repository"
   ],
-  "icon": "assets/images/icon256.png",
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
